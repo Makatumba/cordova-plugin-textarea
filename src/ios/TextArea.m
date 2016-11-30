@@ -147,10 +147,10 @@
     placeholder.text = placeHolderString;
     placeholder.backgroundColor = [UIColor clearColor];
 
-    // if (![bodyText isEqualToString:@""]) {
-    //     placeholder.hidden = YES;
-    //     [confirmBarBtnItem setTintColor:themeColor];
-    // }
+    if (![bodyText isEqualToString:@""]) {
+        placeholder.hidden = YES;
+        //[confirmBarBtnItem setTintColor:themeColor];
+    }
 
     [textView addSubview:placeholder];
 
