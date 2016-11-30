@@ -11,7 +11,6 @@
 @interface TextAreaNavController : UINavigationController
 
 @property (nonatomic) UITextView* textView;
-- (void)insertImage:(NSString*)filePath;
 
 @end
 
