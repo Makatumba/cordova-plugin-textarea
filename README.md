@@ -1,11 +1,7 @@
-##Cordova-Plugin-TextArea
+##Cordova-Plugin-TextArea (fork)
 =================
 
-#####A cordova plugin textarea solution using native components for iOS and Android
-
-####Installation
-
-`cordova plugin add https://github.com/gotojmp/cordova-plugin-textarea.git`
+#####A A fork of a cordova plugin adapted for use in Hygglo mobile app
 
 ####Usage
 
