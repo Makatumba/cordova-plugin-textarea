@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-textarea"
         version="0.0.1">
 
   <name>TextArea</name>
-  <description>TextArea using native components for iOS and Android</description>
+  <description>TextArea using native components for iOS</description>
   <license>MIT</license>
 
   <engines>
@@ -14,17 +13,6 @@
   <js-module src="www/TextArea.js" name="TextArea">
     <clobbers target="TextArea"/>
   </js-module>
-
-  <!-- android -->
-  <platform name="android">
-    <config-file target="res/xml/config.xml" parent="/*">
-      <feature name="TextArea">
-        <param name="android-package" value="com.gotojmp.cordova.textarea.TextArea" />
-      </feature>
-    </config-file>
-    <!--  source files -->
-    <source-file src="src/android/TextArea.java" target-dir="src/com/gotojmp/cordova/textarea" />
-  </platform>
 
   <!-- ios -->
   <platform name="ios">
