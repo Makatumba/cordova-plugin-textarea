@@ -35,10 +35,10 @@
     self.navigationBar.barTintColor = [UIColor colorWithRed:0.20 green:0.08 blue:0.20 alpha:1.0];
     self.navigationBar.translucent = NO;
     self.navigationBar.tintColor = [UIColor whiteColor];
-    
+
     [self.navigationBar
      setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
-    
+
     //UIApplication.sharedApplication().setStatusBarStyle(UIStatusBarStyle.LightContent, animated: true)
 
     //self.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: [UIColor whiteColor]]
@@ -165,22 +165,22 @@
 
 - (NSString *)getPlainString
 {
-    //最终纯文本
+    // final plain text
     NSMutableString* plainString = [NSMutableString stringWithString:textView.attributedText.string];
-    //替换下标的偏移量
+    // Substitute the offset of the subscript
     __block NSUInteger base = 0;
-    //遍历
+    // Traversing
     [textView.attributedText enumerateAttribute:NSAttachmentAttributeName
                                         inRange:NSMakeRange(0, textView.attributedText.length)
                                         options:0
                                      usingBlock:^(id value, NSRange range, BOOL *stop) {
-                                         //检查类型是否是NSTextAttachment类
+                                         //Check whether the type is the NSTextAttachment class
                                          if (value && [value isKindOfClass:[MyTextAttachment class]]) {
-                                             //替换
+                                             //replace
                                              MyTextAttachment* myAttachment = (MyTextAttachment *) value;
                                              NSString* imgStr = [NSString stringWithFormat:@"<img src=\"%@\" width=\"%d\" height=\"%d\">", myAttachment.filePath, (int)myAttachment.image.size.width, (int)myAttachment.image.size.height];
                                              [plainString replaceCharactersInRange:NSMakeRange(range.location + base, range.length) withString:imgStr];
-                                             //增加偏移量
+                                             //Increase the offset
                                              base += imgStr.length - 1;
                                          }
                                      }];
