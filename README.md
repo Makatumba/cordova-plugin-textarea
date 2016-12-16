@@ -1,9 +1,14 @@
-##Cordova-Plugin-TextArea (fork)
-=================
+# Cordova-Plugin-TextArea for iOS
 
-#####A A fork of a cordova plugin adapted for use in Hygglo mobile app
+This is a native Text editor for iOS.
 
-####Usage
+## Install
+To install this plugin run:
+```
+corodova plugin add https://github.com/Makatumba/cordova-plugin-textarea
+```
+
+## Usage
 
 ```
 TextArea.openTextView(titleString, confirmButtonString, cancelButtonString, placeHolderString, bodyText, successCallback, errorCallback);
