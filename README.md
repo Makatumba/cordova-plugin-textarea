@@ -5,7 +5,7 @@ This is a native Text editor for iOS.
 ## Install
 To install this plugin run:
 ```
-corodova plugin add https://github.com/Makatumba/cordova-plugin-textarea
+cordova plugin add https://github.com/Makatumba/cordova-plugin-textarea
 ```
 
 ## Usage
