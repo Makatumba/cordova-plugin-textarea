@@ -60,8 +60,6 @@
     CGRect originalTextViewFrame;
     UISwipeGestureRecognizer* swipeGesture;
     UIColor* themeColor;
-    UIColor* themeColorDisabled;
-    UIColor* navBarColor;
     UIBarButtonItem *confirmBarBtnItem;
 }
 
@@ -73,8 +71,7 @@
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-    themeColor = [UIColor colorWithRed:(100/255.0) green:(56/255.0) blue:(0/255.0) alpha:1];
-    themeColorDisabled = [UIColor colorWithRed:(100/255.0) green:(56/255.0) blue:(0/255.0) alpha:0.3];
+    themeColor = [UIColor colorWithRed:(39/255.0) green:(71/255.0) blue:(92/255.0) alpha:1];
 
     self.currentCallbackId = command.callbackId;
 
@@ -123,7 +120,6 @@
     UIBarButtonItem* cancelBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:cancelButtonString style:UIBarButtonItemStylePlain target:self action:@selector(cancelBtnPressed:)];
     //[cancelBarBtnItem setTintColor:[UIColor grayColor]];
     confirmBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:confirmButtonString style:UIBarButtonItemStylePlain target:self action:@selector(confirmBtnPressed:)];
-    //[confirmBarBtnItem setTintColor:themeColorDisabled];
 
     [navController.topViewController.navigationItem setLeftBarButtonItem:cancelBarBtnItem animated:NO];
     [navController.topViewController.navigationItem setRightBarButtonItem:confirmBarBtnItem animated:NO];
@@ -222,10 +218,8 @@
 {
     if (tView.attributedText.length == 0) {
         placeholder.hidden = NO;
-        //[confirmBarBtnItem setTintColor:themeColorDisabled];
     } else {
         placeholder.hidden = YES;
-        //[confirmBarBtnItem setTintColor:themeColor];
     }
 }
 
@@ -251,10 +245,6 @@
 
 - (void)moveTextViewForKeyboard:(NSNotification*)notification up:(BOOL)up {
 
-//    if ([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait) {
-//        return;
-//    }
-
     NSDictionary *userInfo = [notification userInfo];
     NSTimeInterval animationDuration;
     UIViewAnimationCurve animationCurve;
@@ -265,15 +255,10 @@
     keyboardRect = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardRect = [self.viewController.view convertRect:keyboardRect fromView:nil];
 
-    //[UIView beginAnimations:@"ResizeForKeyboard" context:nil];
-    //[UIView setAnimationDuration:animationDuration];
-    //[UIView setAnimationCurve:animationCurve];
-
     if (up == YES) {
-        CGFloat keyboardTop = keyboardRect.origin.y;
         CGRect newTextViewFrame = textView.frame;
         originalTextViewFrame = textView.frame;
-        newTextViewFrame.size.height = keyboardTop - textView.frame.origin.y;
+        newTextViewFrame.size.height = originalTextViewFrame.size.height - keyboardRect.size.height;
 
         textView.frame = newTextViewFrame;
     } else {
