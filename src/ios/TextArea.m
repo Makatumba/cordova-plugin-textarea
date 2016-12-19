@@ -34,6 +34,7 @@
     [self.textView becomeFirstResponder];
 
     // The tint color to apply to the navigation bar background.
+    //self.navigationBar.barTintColor = [UIColor colorWithRed:(59/255.0) green:(142/255.0) blue:(185/255.0) alpha:1];
     self.navigationBar.barTintColor = [UIColor colorWithRed:(39/255.0) green:(71/255.0) blue:(92/255.0) alpha:1];
     self.navigationBar.translucent = NO;
     // The tint color to apply to the navigation items and bar button items.
