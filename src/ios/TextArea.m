@@ -32,18 +32,15 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.textView becomeFirstResponder];
-    self.navigationBar.barTintColor = [UIColor colorWithRed:0.20 green:0.08 blue:0.20 alpha:1.0];
-    self.navigationBar.translucent = NO;
-    self.navigationBar.tintColor = [UIColor whiteColor];
-    
-    [self.navigationBar
-     setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
-    
-    //UIApplication.sharedApplication().setStatusBarStyle(UIStatusBarStyle.LightContent, animated: true)
 
-    //self.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: [UIColor whiteColor]]
-    //self.navigationBar.barStyle = [UIBarStyle.Black];
-    //self.navigationBar.barStyle = UIBarStyle.de
+    // The tint color to apply to the navigation bar background.
+    self.navigationBar.barTintColor = [UIColor colorWithRed:(39/255.0) green:(71/255.0) blue:(92/255.0) alpha:1];
+    self.navigationBar.translucent = NO;
+    // The tint color to apply to the navigation items and bar button items.
+    self.navigationBar.tintColor = [UIColor whiteColor];
+
+    [self.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
+
 }
 
 @end
@@ -78,13 +75,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     themeColor = [UIColor colorWithRed:(100/255.0) green:(56/255.0) blue:(0/255.0) alpha:1];
     themeColorDisabled = [UIColor colorWithRed:(100/255.0) green:(56/255.0) blue:(0/255.0) alpha:0.3];
-    //navBarColor = [UIColor colorWithRed:(65/255.0) green:(28/255.0) blue:(66/255.0) alpha:1];
-
-    //self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:(65/255.0) green:(28/255.0) blue:(66/255.0) alpha:1];
-    //self.navigationBar.barTintColor = [UIColor colorWithRed:(65/255.0) green:(28/255.0) blue:(66/255.0) alpha:1];
-    //self.navigationController.navigationBar.translucent = NO;
-    // self.navigationBar.barTintColor = [UIColor blueColor];
-    // self.navigationBar.tintColor = [UIColor whiteColor];
 
     self.currentCallbackId = command.callbackId;
 
@@ -118,9 +108,10 @@
     NSDictionary *attrsDictionary = @{NSFontAttributeName:textFont, NSParagraphStyleAttributeName:paragraphStyle};
     [textView setDelegate:self];
     [textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    //[textView setTintColor:themeColor];
+    [textView setTintColor:themeColor];
     //[textView setFont:textFont];
     //[textView setTextColor:[UIColor blackColor]];
+
     textView.attributedText = [[NSAttributedString alloc] initWithString:@" " attributes:attrsDictionary];
     textView.text = bodyText;
 
@@ -208,9 +199,6 @@
 }
 
 - (void)confirmBtnPressed: (id) sender {
-    // if (textView.attributedText.length == 0) {
-    //     return;
-    // }
     [textView resignFirstResponder];
     NSString *sendingString = @"";
     sendingString = [self getPlainString];
@@ -263,9 +251,9 @@
 
 - (void)moveTextViewForKeyboard:(NSNotification*)notification up:(BOOL)up {
 
-    if ([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait) {
-        return;
-    }
+//    if ([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait) {
+//        return;
+//    }
 
     NSDictionary *userInfo = [notification userInfo];
     NSTimeInterval animationDuration;
