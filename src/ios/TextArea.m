@@ -61,6 +61,7 @@
     UISwipeGestureRecognizer* swipeGesture;
     UIColor* themeColor;
     UIBarButtonItem *confirmBarBtnItem;
+    UIBarButtonItem *cancelBarBtnItem;
 }
 
 @end
@@ -71,7 +72,6 @@
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-    themeColor = [UIColor colorWithRed:(39/255.0) green:(71/255.0) blue:(92/255.0) alpha:1];
 
     self.currentCallbackId = command.callbackId;
 
@@ -103,11 +103,12 @@
     paragraphStyle.firstLineHeadIndent = 0;
     paragraphStyle.tailIndent = 0;
     NSDictionary *attrsDictionary = @{NSFontAttributeName:textFont, NSParagraphStyleAttributeName:paragraphStyle};
+
     [textView setDelegate:self];
     [textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    [textView setTintColor:themeColor];
+    [textView setTintColor:[UIColor blackColor]];
     //[textView setFont:textFont];
-    //[textView setTextColor:[UIColor blackColor]];
+    [textView setTextColor:[UIColor blackColor]];
 
     textView.attributedText = [[NSAttributedString alloc] initWithString:@" " attributes:attrsDictionary];
     textView.text = bodyText;
@@ -117,12 +118,12 @@
     [navController.navigationBar setBarTintColor:[UIColor whiteColor]];
     [navController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObject:[UIColor blackColor] forKey:NSForegroundColorAttributeName]];
 
-    UIBarButtonItem* cancelBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:cancelButtonString style:UIBarButtonItemStylePlain target:self action:@selector(cancelBtnPressed:)];
-    //[cancelBarBtnItem setTintColor:[UIColor grayColor]];
+    // buttons
     confirmBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:confirmButtonString style:UIBarButtonItemStylePlain target:self action:@selector(confirmBtnPressed:)];
+    cancelBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:cancelButtonString style:UIBarButtonItemStylePlain target:self action:@selector(cancelBtnPressed:)];
 
-    [navController.topViewController.navigationItem setLeftBarButtonItem:cancelBarBtnItem animated:NO];
-    [navController.topViewController.navigationItem setRightBarButtonItem:confirmBarBtnItem animated:NO];
+    [navController.topViewController.navigationItem setLeftBarButtonItem:confirmBarBtnItem animated:NO];
+    [navController.topViewController.navigationItem setRightBarButtonItem:cancelBarBtnItem animated:NO];
 
     // add view
     [viewController.view addSubview:textView];
@@ -136,7 +137,6 @@
 
     if (![bodyText isEqualToString:@""]) {
         placeholder.hidden = YES;
-        //[confirmBarBtnItem setTintColor:themeColor];
     }
 
     [textView addSubview:placeholder];
