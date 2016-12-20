@@ -24,8 +24,7 @@
 
 @implementation TextAreaNavController
 
--(UIStatusBarStyle)preferredStatusBarStyle
-{
+- (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
 }
 
@@ -63,6 +62,8 @@
     UIColor* themeColor;
     UIBarButtonItem *confirmBarBtnItem;
     UIBarButtonItem *cancelBarBtnItem;
+
+    BOOL _isKeyboardVisible;
 }
 
 @end
@@ -71,11 +72,15 @@
 
 - (void)openTextView:(CDVInvokedUrlCommand*)command {
 
+    // registring events
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+
 
     self.currentCallbackId = command.callbackId;
 
+    // reading arguments from js
     titleString = command.arguments[0];
     confirmButtonString = command.arguments[1];
     cancelButtonString = command.arguments[2];
@@ -151,8 +156,7 @@
 
 #pragma Actions
 
-- (NSString *)getPlainString
-{
+- (NSString *)getPlainString {
     // final plain text
     NSMutableString* plainString = [NSMutableString stringWithString:textView.attributedText.string];
     // substitute the offset of the subscript
@@ -175,14 +179,13 @@
     return plainString;
 }
 
--(void)handleGesture:(UIGestureRecognizer*)gesture
-{
+- (void)handleGesture:(UIGestureRecognizer*)gesture {
     [textView resignFirstResponder];
 }
 
 - (void)cancelBtnPressed: (id) sender {
-        [self canceled];
-        return;
+    [self canceled];
+    return;
 }
 
 - (void)canceled {
@@ -215,8 +218,7 @@
 
 #pragma TextView Delegate methods
 
-- (void)textViewDidChange:(UITextView *)tView
-{
+- (void)textViewDidChange:(UITextView *)tView {
     if (tView.attributedText.length == 0) {
         placeholder.hidden = NO;
     } else {
@@ -224,28 +226,32 @@
     }
 }
 
-- (void)textViewDidBeginEditing:(UITextView *)tView
-{
+- (void)textViewDidBeginEditing:(UITextView *)tView {
     [tView becomeFirstResponder];
 }
 
-- (void)textViewDidEndEditing:(UITextView *)tView
-{
+- (void)textViewDidEndEditing:(UITextView *)tView {
     [tView resignFirstResponder];
 }
 
+//- (void) orientationChanged:(NSNotification*)notification{
+//    [self statusBar:notification];
+//}
+
 #pragma keyboard Notifications
 
-- (void)keyboardWillShow:(NSNotification*)notification {
-    [self moveTextViewForKeyboard:notification up:YES];
+- (void)keyboardWillShow:(NSNotification*)notification{
+    [self keyboardDidShow];
+    [self setNewTextViewHeight:notification];
 }
 
 - (void)keyboardWillHide:(NSNotification*)notification {
-    [self moveTextViewForKeyboard:notification up:NO];
+    [self keyboardDidHide];
+    [self setNewTextViewHeight:notification];
 }
 
-- (void)moveTextViewForKeyboard:(NSNotification*)notification up:(BOOL)up {
 
+- (void)setNewTextViewHeight:(NSNotification*)notification {
     NSDictionary *userInfo = [notification userInfo];
     NSTimeInterval animationDuration;
     UIViewAnimationCurve animationCurve;
@@ -256,18 +262,57 @@
     keyboardRect = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardRect = [self.viewController.view convertRect:keyboardRect fromView:nil];
 
-    if (up == YES) {
-        CGRect newTextViewFrame = textView.frame;
-        originalTextViewFrame = textView.frame;
-        newTextViewFrame.size.height = originalTextViewFrame.size.height - keyboardRect.size.height;
-
-        textView.frame = newTextViewFrame;
-    } else {
-        // Keyboard is going away (down) - restore original frame
-        textView.frame = originalTextViewFrame;
+    CGRect newTextViewFrame = textView.frame;
+    // removing additional 70points for correct calculation
+    if (self.isKeyboardVisible){
+        newTextViewFrame.size.height = self.getViewHeight - keyboardRect.size.height - 70;
     }
+    else {
+        newTextViewFrame.size.height = self.getViewHeight - 70;
+    }
+    textView.frame = newTextViewFrame;
 
     [UIView commitAnimations];
 }
 
+// returns the right screen height depending on the screen orientation
+- (double)getViewHeight {
+    if (self.isPortraitOrientation){
+        if ( self.viewController.view.frame.size.height > self.viewController.view.frame.size.width){
+            return self.viewController.view.frame.size.height;
+        }
+        else {
+            return self.viewController.view.frame.size.width;
+        }
+    }
+    else {
+        if ( self.viewController.view.frame.size.height < self.viewController.view.frame.size.width){
+            return self.viewController.view.frame.size.height;
+        }
+        else {
+            return self.viewController.view.frame.size.width;
+        }
+    }
+}
+
+- (BOOL)isPortraitOrientation {
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+
+    if ((orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight)){
+            return NO;
+    }
+    return YES;
+}
+
+- (BOOL)isKeyboardVisible {
+    return _isKeyboardVisible;
+}
+
+- (void)keyboardDidShow {
+    _isKeyboardVisible = YES;
+}
+
+- (void)keyboardDidHide {
+    _isKeyboardVisible = NO;
+}
 @end
