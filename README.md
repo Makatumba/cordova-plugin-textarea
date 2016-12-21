@@ -15,4 +15,5 @@ TextArea.openTextView(titleString, confirmButtonString, cancelButtonString, plac
 ```
 
 ## Known Issues
+- [All]: Textarea cursor become sometimes invisible
 - [iPhone]: TextArea is approx. 20 points above the keyboard in landscape mode
