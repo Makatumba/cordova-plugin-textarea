@@ -118,6 +118,9 @@
 
     textView.attributedText = [[NSAttributedString alloc] initWithString:@" " attributes:attrsDictionary];
     textView.text = bodyText;
+    // prevent scrolling to the and of the document, by setting cursor position to the beginning of the document.
+    UITextPosition *beginning = [textView beginningOfDocument];
+    [textView setSelectedTextRange:[textView textRangeFromPosition:beginning toPosition:beginning]];
 
     [viewController setTitle:titleString];
 
