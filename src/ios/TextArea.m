@@ -128,11 +128,15 @@
     [navController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObject:[UIColor blackColor] forKey:NSForegroundColorAttributeName]];
 
     // buttons
+    // confirm button
     confirmBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:confirmButtonString style:UIBarButtonItemStylePlain target:self action:@selector(confirmBtnPressed:)];
-    cancelBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:cancelButtonString style:UIBarButtonItemStylePlain target:self action:@selector(cancelBtnPressed:)];
-
     [navController.topViewController.navigationItem setLeftBarButtonItem:confirmBarBtnItem animated:NO];
-    [navController.topViewController.navigationItem setRightBarButtonItem:cancelBarBtnItem animated:NO];
+    
+    //cancel button
+    if (![cancelButtonString isEqualToString:@""]) {
+        cancelBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:cancelButtonString style:UIBarButtonItemStylePlain target:self action:@selector(cancelBtnPressed:)];
+        [navController.topViewController.navigationItem setRightBarButtonItem:cancelBarBtnItem animated:NO];
+    }
 
     // add view
     [viewController.view addSubview:textView];
