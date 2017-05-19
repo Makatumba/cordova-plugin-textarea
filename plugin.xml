@@ -7,9 +7,6 @@
   <description>TextArea using native components for iOS</description>
   <license>MIT</license>
 
-  <engines>
-    <engine name="cordova" version=">=2.9.0" />
-  </engines>
   <js-module src="www/TextArea.js" name="TextArea">
     <clobbers target="TextArea"/>
   </js-module>
@@ -26,5 +23,3 @@
     <source-file src="src/ios/TextArea.m" />
 
   </platform>
-
-</plugin>
