@@ -1,0 +1,25 @@
+  {
+    "name": "cordova-plugin-textarea",
+    "version": "0.0.2",
+    "description": "TextArea using native components for iOS",
+    "main": "index.js",
+    "cordova": {
+      "id": "cordova-plugin-textarea",
+      "platforms": ["ios"]
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/smartcrm/cordova-plugin-textarea.git"
+    },
+    "keywords": [
+      "iOS",
+      "TextArea",
+      "cordova plugin"
+    ],
+    "author": "SMARTCRM",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/smartcrm/cordova-plugin-textarea/issues"
+    },
+    "homepage": "https://github.com/smartcrm/cordova-plugin-textarea#readme"
+  }
