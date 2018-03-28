@@ -23,6 +23,7 @@
 @end
 
 @implementation TextAreaNavController
+    UIColor *barTintColor;
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
@@ -33,8 +34,7 @@
     [self.textView becomeFirstResponder];
 
     // The tint color to apply to the navigation bar background.
-    self.navigationBar.barTintColor = [UIColor colorWithRed:(59/255.0) green:(142/255.0) blue:(185/255.0) alpha:1];
-    //self.navigationBar.barTintColor = [UIColor colorWithRed:(39/255.0) green:(71/255.0) blue:(92/255.0) alpha:1];
+    self.navigationBar.barTintColor = barTintColor;
     self.navigationBar.translucent = NO;
     // The tint color to apply to the navigation items and bar button items.
     self.navigationBar.tintColor = [UIColor whiteColor];
@@ -86,6 +86,7 @@
     cancelButtonString = command.arguments[2];
     placeHolderString = command.arguments[3];
     bodyText = command.arguments[4];
+    barTintColor = [self colorFromHexString:command.arguments[5]];
 
     UIFont* textFont = [UIFont fontWithName:@"STHeitiSC-Light" size:16];
 
@@ -317,4 +318,15 @@
 - (void)keyboardDidHide {
     _isKeyboardVisible = NO;
 }
+
+// Color conversion from hex to uicolor
+// https://stackoverflow.com/questions/1560081/how-can-i-create-a-uicolor-from-a-hex-string
+- (UIColor *)colorFromHexString:(NSString *)hexString {
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:1]; // bypass '#' character
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
+}
+
 @end

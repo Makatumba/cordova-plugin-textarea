@@ -10,6 +10,7 @@
 
 @interface TextAreaNavController : UINavigationController
 
+@property (nonatomic, copy) UIColor* barTintColor;
 @property (nonatomic) UITextView* textView;
 
 @end
