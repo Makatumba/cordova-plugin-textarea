@@ -111,6 +111,7 @@
     NSDictionary *attrsDictionary = @{NSFontAttributeName:textFont, NSParagraphStyleAttributeName:paragraphStyle};
 
     [textView setDelegate:self];
+    textView.pasteDelegate = self;
     [textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [textView setTintColor:[UIColor blackColor]];
     //[textView setFont:textFont];
@@ -163,29 +164,6 @@
 
 #pragma Actions
 
-- (NSString *)getPlainString {
-    // final plain text
-    NSMutableString* plainString = [NSMutableString stringWithString:textView.attributedText.string];
-    // substitute the offset of the subscript
-    __block NSUInteger base = 0;
-    // traversing
-    [textView.attributedText enumerateAttribute:NSAttachmentAttributeName
-                                        inRange:NSMakeRange(0, textView.attributedText.length)
-                                        options:0
-                                     usingBlock:^(id value, NSRange range, BOOL *stop) {
-                                         // Check whether the type is the NSTextAttachment class
-                                         if (value && [value isKindOfClass:[MyTextAttachment class]]) {
-                                             // replace
-                                             MyTextAttachment* myAttachment = (MyTextAttachment *) value;
-                                             NSString* imgStr = [NSString stringWithFormat:@"<img src=\"%@\" width=\"%d\" height=\"%d\">", myAttachment.filePath, (int)myAttachment.image.size.width, (int)myAttachment.image.size.height];
-                                             [plainString replaceCharactersInRange:NSMakeRange(range.location + base, range.length) withString:imgStr];
-                                             // Increase the offset
-                                             base += imgStr.length - 1;
-                                         }
-                                     }];
-    return plainString;
-}
-
 - (void)handleGesture:(UIGestureRecognizer*)gesture {
     [textView resignFirstResponder];
 }
@@ -208,7 +186,7 @@
 - (void)confirmBtnPressed: (id) sender {
     [textView resignFirstResponder];
     NSString *sendingString = @"";
-    sendingString = [self getPlainString];
+    sendingString = [NSMutableString stringWithString:textView.attributedText.string];
     NSMutableDictionary* textResult = [NSMutableDictionary dictionaryWithDictionary:@{@"text":sendingString}];
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:textResult];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.currentCallbackId];
@@ -224,6 +202,23 @@
 }
 
 #pragma TextView Delegate methods
+
+//Set a Hook to know there's a paste action while I'm the first responder - fired when Paste was tapped
+- (void)textPasteConfigurationSupporting:(id<UITextPasteConfigurationSupporting>)textPasteConfigurationSupporting transformPasteItem:(id<UITextPasteItem>)item API_AVAILABLE(ios(11.0)) {
+    [self paste:textPasteConfigurationSupporting];
+}
+
+//generic paste action handler
+- (void)paste:(id)sender {
+    UIPasteboard *gpBoard = [UIPasteboard generalPasteboard];
+    if ([gpBoard hasStrings]) {
+        id<UITextPasteConfigurationSupporting> pasteItem = (id<UITextPasteConfigurationSupporting>)sender;
+        if ([pasteItem isKindOfClass:[UITextView class]]) {
+            UITextView* myTextView = (UITextView*)pasteItem;
+            [myTextView insertText:[gpBoard string]];
+        }
+    }
+}
 
 - (void)textViewDidChange:(UITextView *)tView {
     if (tView.attributedText.length == 0) {
