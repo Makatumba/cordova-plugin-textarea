@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         id="cordova-plugin-textarea"
-        version="0.0.2">
+        version="0.0.3">
 
   <name>TextArea</name>
   <description>TextArea using native components for iOS</description>
