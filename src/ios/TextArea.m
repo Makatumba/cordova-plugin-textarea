@@ -82,9 +82,6 @@ UIColor *barTintColor;
     
     // set keyboard events
     [self setupKeyboardEventsAndGestures];
-    
-    // get webview
-    [self.webView isKindOfClass:NSClassFromString(@"WKWebView")];
 }
 
 - (void)setCommandProperties:(CDVInvokedUrlCommand*)command {
@@ -141,7 +138,7 @@ UIColor *barTintColor;
 - (UITextView*)getTextView:(UIViewController*)viewController {
     UITextView* _textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 5, viewController.view.frame.size.width-20, viewController.view.frame.size.height-10)];
     [_textView becomeFirstResponder];
-
+    
     [_textView setDelegate:self];
     _textView.pasteDelegate = self;
     [_textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
@@ -267,10 +264,6 @@ UIColor *barTintColor;
     [tView resignFirstResponder];
 }
 
-//- (void) orientationChanged:(NSNotification*)notification {
-//    [self statusBar:notification];
-//}
-
 #pragma keyboard Notifications
 
 - (void)keyboardWillShow:(NSNotification*)notification {
@@ -295,32 +288,10 @@ UIColor *barTintColor;
     keyboardRect = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardRect = [self.viewController.view convertRect:keyboardRect fromView:nil];
     
-    CGRect newTextViewFrame = textView.frame;
     // removing additional 70points for correct calculation
-    if (self.isKeyboardVisible) {
-        newTextViewFrame.size.height = self.getViewHeight - keyboardRect.size.height - 70;
-    }
-    else {
-        newTextViewFrame.size.height = self.getViewHeight - 70;
-    }
-    textView.frame = newTextViewFrame;
+    [textView setFrame:CGRectMake(CGRectGetMinX(textView.frame), CGRectGetMinY(textView.frame), CGRectGetWidth(textView.frame), CGRectGetMinY(keyboardRect) - 70)];
     
     [UIView commitAnimations];
-}
-
-// returns the right screen height depending on the screen orientation
-- (double)getViewHeight {
-    CGRect wf = self.webView.frame;
-    return wf.size.height;
-}
-
-- (BOOL)isPortraitOrientation {
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    
-    if ((orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight)) {
-        return NO;
-    }
-    return YES;
 }
 
 - (BOOL)isKeyboardVisible {
