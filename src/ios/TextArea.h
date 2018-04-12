@@ -1,6 +1,6 @@
 #import <Cordova/CDV.h>
 
-@interface TextArea : CDVPlugin
+@interface TextArea : CDVPlugin <UITextPasteDelegate>
 
 - (void)openTextView:(CDVInvokedUrlCommand*)command;
 

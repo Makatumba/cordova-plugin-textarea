@@ -6,9 +6,9 @@
  to you under the Apache License, Version 2.0 (the
  "License"); you may not use this file except in compliance
  with the License.  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing,
  software distributed under the License is distributed on an
  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,7 +23,7 @@
 @end
 
 @implementation TextAreaNavController
-    UIColor *barTintColor;
+UIColor *barTintColor;
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
@@ -32,28 +32,28 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.textView becomeFirstResponder];
-
+    
     // The tint color to apply to the navigation bar background.
     self.navigationBar.barTintColor = barTintColor;
     self.navigationBar.translucent = NO;
     // The tint color to apply to the navigation items and bar button items.
     self.navigationBar.tintColor = [UIColor whiteColor];
-
-    [self.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
-
+    
+    [self.navigationBar setTitleTextAttributes:@ {NSForegroundColorAttributeName : [UIColor whiteColor]}];
+    
 }
 
 @end
 
 @interface TextArea()<UITextViewDelegate> {
-
+    
     NSString* titleString;
     NSString* confirmButtonString;
     NSString* cancelButtonString;
     NSString* placeHolderString;
     NSString* bodyText;
     BOOL isRichText;
-
+    
     TextAreaNavController* navController;
     UITextView* textView;
     UILabel* placeholder;
@@ -62,7 +62,7 @@
     UIColor* themeColor;
     UIBarButtonItem *confirmBarBtnItem;
     UIBarButtonItem *cancelBarBtnItem;
-
+    
     BOOL _isKeyboardVisible;
 }
 
@@ -71,15 +71,25 @@
 @implementation TextArea
 
 - (void)openTextView:(CDVInvokedUrlCommand*)command {
+    // read js parameters
+    [self setCommandProperties:command];
+    
+    // setup
+    [self setupViewController];
+    
+    // present the controller
+    [self.viewController presentViewController:navController animated:YES completion:NULL];
+    
+    // set keyboard events
+    [self setupKeyboardEventsAndGestures];
+    
+    // get webview
+    [self.webView isKindOfClass:NSClassFromString(@"WKWebView")];
+}
 
-    // registring events
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
-
-
+- (void)setCommandProperties:(CDVInvokedUrlCommand*)command {
     self.currentCallbackId = command.callbackId;
-
+    
     // reading arguments from js
     titleString = command.arguments[0];
     confirmButtonString = command.arguments[1];
@@ -87,48 +97,35 @@
     placeHolderString = command.arguments[3];
     bodyText = command.arguments[4];
     barTintColor = [self colorFromHexString:command.arguments[5]];
+}
 
-    UIFont* textFont = [UIFont fontWithName:@"STHeitiSC-Light" size:16];
-
+- (void)setupViewController {
     // create controllers
     UIViewController* viewController = [[UIViewController alloc] init];
     navController = [[TextAreaNavController alloc] initWithRootViewController:viewController];
-
+    
     // create view
-    textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 5, viewController.view.frame.size.width-20, viewController.view.frame.size.height-10)];
-    [textView becomeFirstResponder];
+    textView = [self getTextView:viewController];
+    
+    // config title bar
+    [self setupHeaderBar:viewController];
+    
+    // add view
+    [viewController.view addSubview:textView];
+    
+    // add placeholder
+    [textView addSubview:[self getConfiguredPlaceHolder:viewController]];
+    
+    viewController.view.backgroundColor = [UIColor whiteColor];
+    navController.textView = textView;
+}
 
-    // for keyboard hide
-    textView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
-    swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
-    swipeGesture.direction = UISwipeGestureRecognizerDirectionDown;
-    [textView addGestureRecognizer:swipeGesture];
-
-    // load body for textView and add border
-    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.headIndent = 0;
-    paragraphStyle.firstLineHeadIndent = 0;
-    paragraphStyle.tailIndent = 0;
-    NSDictionary *attrsDictionary = @{NSFontAttributeName:textFont, NSParagraphStyleAttributeName:paragraphStyle};
-
-    [textView setDelegate:self];
-    textView.pasteDelegate = self;
-    [textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    [textView setTintColor:[UIColor blackColor]];
-    //[textView setFont:textFont];
-    [textView setTextColor:[UIColor blackColor]];
-
-    textView.attributedText = [[NSAttributedString alloc] initWithString:@" " attributes:attrsDictionary];
-    textView.text = bodyText;
-    // prevent scrolling to the and of the document, by setting cursor position to the beginning of the document.
-    UITextPosition *beginning = [textView beginningOfDocument];
-    [textView setSelectedTextRange:[textView textRangeFromPosition:beginning toPosition:beginning]];
-
+- (void)setupHeaderBar:(UIViewController*)viewController {
     [viewController setTitle:titleString];
-
+    
     [navController.navigationBar setBarTintColor:[UIColor whiteColor]];
     [navController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObject:[UIColor blackColor] forKey:NSForegroundColorAttributeName]];
-
+    
     // buttons
     // confirm button
     confirmBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:confirmButtonString style:UIBarButtonItemStylePlain target:self action:@selector(confirmBtnPressed:)];
@@ -139,28 +136,61 @@
         cancelBarBtnItem = [[UIBarButtonItem alloc] initWithTitle:cancelButtonString style:UIBarButtonItemStylePlain target:self action:@selector(cancelBtnPressed:)];
         [navController.topViewController.navigationItem setRightBarButtonItem:cancelBarBtnItem animated:NO];
     }
+}
 
-    // add view
-    [viewController.view addSubview:textView];
+- (UITextView*)getTextView:(UIViewController*)viewController {
+    UITextView* _textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 5, viewController.view.frame.size.width-20, viewController.view.frame.size.height-10)];
+    [_textView becomeFirstResponder];
 
-    // add placeholder
+    [_textView setDelegate:self];
+    _textView.pasteDelegate = self;
+    [_textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+    [_textView setTintColor:[UIColor blackColor]];
+    
+    [_textView setTextColor:[UIColor blackColor]];
+    
+    _textView.attributedText = [[NSAttributedString alloc] initWithString:@" " attributes:[self getAttrsDictionary]];
+    _textView.text = bodyText;
+    
+    // prevent scrolling to the end of the document, by setting cursor position to the beginning of the document.
+    UITextPosition *beginning = [_textView beginningOfDocument];
+    [_textView setSelectedTextRange:[textView textRangeFromPosition:beginning toPosition:beginning]];
+    return _textView;
+}
+
+- (NSDictionary*)getAttrsDictionary {
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    paragraphStyle.headIndent = 0;
+    paragraphStyle.firstLineHeadIndent = 0;
+    paragraphStyle.tailIndent = 0;
+    NSDictionary *attrsDictionary = @ {NSFontAttributeName:[UIFont fontWithName:@"STHeitiSC-Light" size:16], NSParagraphStyleAttributeName:paragraphStyle};
+    return attrsDictionary;
+}
+
+- (UILabel*)getConfiguredPlaceHolder:(UIViewController*)viewController {
     placeholder = [[UILabel alloc] initWithFrame:CGRectMake(5, 10, viewController.view.frame.size.width, 18)];
-    //placeholder.font = textFont;
+    
     placeholder.textColor = [UIColor lightGrayColor];
     placeholder.text = placeHolderString;
     placeholder.backgroundColor = [UIColor clearColor];
-
+    
     if (![bodyText isEqualToString:@""]) {
         placeholder.hidden = YES;
     }
+    
+    return placeholder;
+}
 
-    [textView addSubview:placeholder];
-
-    viewController.view.backgroundColor = [UIColor whiteColor];
-    navController.textView = textView;
-
-    // present the controller
-    [self.viewController presentViewController:navController animated:YES completion:NULL];
+- (void)setupKeyboardEventsAndGestures {
+    // registring keyboard events
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
+    // swipe down to hide keyboard
+    textView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+    swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
+    swipeGesture.direction = UISwipeGestureRecognizerDirectionDown;
+    [textView addGestureRecognizer:swipeGesture];
 }
 
 #pragma Actions
@@ -178,7 +208,7 @@
     [textView resignFirstResponder];
     [self.viewController dismissViewControllerAnimated:YES completion:^(void) {
         [self removeObservers];
-
+        
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.currentCallbackId];
     }];
@@ -188,10 +218,10 @@
     [textView resignFirstResponder];
     NSString *sendingString = @"";
     sendingString = [NSMutableString stringWithString:textView.attributedText.string];
-    NSMutableDictionary* textResult = [NSMutableDictionary dictionaryWithDictionary:@{@"text":sendingString}];
+    NSMutableDictionary* textResult = [NSMutableDictionary dictionaryWithDictionary:@ {@"text":sendingString}];
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:textResult];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.currentCallbackId];
-
+    
     [self.viewController dismissViewControllerAnimated:YES completion:^(void) {
         [self removeObservers]; //closed
     }];
@@ -237,13 +267,13 @@
     [tView resignFirstResponder];
 }
 
-//- (void) orientationChanged:(NSNotification*)notification{
+//- (void) orientationChanged:(NSNotification*)notification {
 //    [self statusBar:notification];
 //}
 
 #pragma keyboard Notifications
 
-- (void)keyboardWillShow:(NSNotification*)notification{
+- (void)keyboardWillShow:(NSNotification*)notification {
     [self keyboardDidShow];
     [self setNewTextViewHeight:notification];
 }
@@ -259,50 +289,36 @@
     NSTimeInterval animationDuration;
     UIViewAnimationCurve animationCurve;
     CGRect keyboardRect;
-
+    
     [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] getValue:&animationCurve];
     animationDuration = [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     keyboardRect = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     keyboardRect = [self.viewController.view convertRect:keyboardRect fromView:nil];
-
+    
     CGRect newTextViewFrame = textView.frame;
     // removing additional 70points for correct calculation
-    if (self.isKeyboardVisible){
+    if (self.isKeyboardVisible) {
         newTextViewFrame.size.height = self.getViewHeight - keyboardRect.size.height - 70;
     }
     else {
         newTextViewFrame.size.height = self.getViewHeight - 70;
     }
     textView.frame = newTextViewFrame;
-
+    
     [UIView commitAnimations];
 }
 
 // returns the right screen height depending on the screen orientation
 - (double)getViewHeight {
-    if (self.isPortraitOrientation){
-        if ( self.viewController.view.frame.size.height > self.viewController.view.frame.size.width){
-            return self.viewController.view.frame.size.height;
-        }
-        else {
-            return self.viewController.view.frame.size.width;
-        }
-    }
-    else {
-        if ( self.viewController.view.frame.size.height < self.viewController.view.frame.size.width){
-            return self.viewController.view.frame.size.height;
-        }
-        else {
-            return self.viewController.view.frame.size.width;
-        }
-    }
+    CGRect wf = self.webView.frame;
+    return wf.size.height;
 }
 
 - (BOOL)isPortraitOrientation {
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-
-    if ((orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight)){
-            return NO;
+    
+    if ((orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight)) {
+        return NO;
     }
     return YES;
 }
