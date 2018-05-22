@@ -140,7 +140,9 @@ UIColor *barTintColor;
     [_textView becomeFirstResponder];
     
     [_textView setDelegate:self];
-    _textView.pasteDelegate = self;
+    if ([self respondsToSelector:@selector(pasteDelegate)]) {
+        _textView.pasteDelegate = self;
+    }
     [_textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [_textView setTintColor:[UIColor blackColor]];
     
