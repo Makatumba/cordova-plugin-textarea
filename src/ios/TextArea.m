@@ -140,9 +140,11 @@ UIColor *barTintColor;
     [_textView becomeFirstResponder];
     
     [_textView setDelegate:self];
-    if ([self respondsToSelector:@selector(pasteDelegate)]) {
-        _textView.pasteDelegate = self;
-    }
+// this removes iOS 10 support but fixes an error on iOS 11.4.
+// this check seems to still work on iOS 12.1.1 wtf o0
+//    if ([self respondsToSelector:@selector(pasteDelegate)]) {
+    _textView.pasteDelegate = self;
+//    }
     [_textView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [_textView setTintColor:[UIColor blackColor]];
     
